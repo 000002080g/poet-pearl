@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لؤلؤة الشاعر | الإصدار المطور</title>
+    <style>
+        body { font-family: sans-serif; background-color: #0b0c10; color: #66fcf1; text-align: center; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: #1f2833; padding: 20px; border-radius: 15px; border: 1px solid #45a29e; }
+        textarea { width: 90%; height: 100px; margin: 15px 0; padding: 10px; border-radius: 10px; border: none; font-size: 1.1em; }
+        button { background: #45a29e; color: #0b0c10; border: none; padding: 10px 25px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        #result { margin-top: 20px; text-align: right; line-height: 1.6; color: #c5c6c7; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>لؤلؤة الشاعر</h1>
+        <textarea id="poemInput" placeholder="أدخل الأبيات هنا..."></textarea>
+        <br>
+        <button onclick="analyze()">حلل القصيدة</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function analyze() {
+            const poem = document.getElementById('poemInput').value;
+            const resDiv = document.getElementById('result');
+            if(!poem) return alert("أدخل نصاً أولاً");
+            resDiv.innerHTML = "جاري استخراج اللآلئ...";
+            try {
+                const response = await fetch('https://poet-pearl.vercel.app/api/analyze', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ poem })
+                });
+                const data = await response.json();
+                resDiv.innerHTML = data.analysis || "حدث خطأ في الخادم";
+            } catch (e) {
+                resDiv.innerHTML = "فشل الاتصال بالسيرفر";
+            }
+        }
+    </script>
+</body>
+  </html>
+  
