@@ -9,16 +9,13 @@ export default async function handler(req, res) {
     try {
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-        const { action, input, context } = req.body;
-        let prompt = "";
-
-        if (action === 'grammar') prompt = `أنت سيبويه، شكل الأبيات واشرح إعرابها:\n${input}`;
-        else if (action === 'prosody') prompt = `أنت الخليل بن أحمد، قطع الأبيات واذكر البحر:\n${input}`;
-        else if (action === 'lexicon') prompt = `أنت ابن منظور، اشرح كلمة "${input}" في سياق: ${context}`;
+        
+        const textInput = req.body.input || req.body.poem;
+        const prompt = `أنت الخليل بن أحمد وسيبويه، شكل الأبيات التالية، واذكر بحرها، واشرح إعرابها:\n${textInput}`;
 
         const result = await model.generateContent(prompt);
-        return res.status(200).json({ success: true, output: result.response.text() });
+        return res.status(200).json({ analysis: result.response.text() });
     } catch (error) {
-        return res.status(500).json({ success: false, error: error.message });
+        return res.status(500).json({ error: error.message });
     }
 }
