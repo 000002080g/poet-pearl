@@ -3,43 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لؤلؤة الشاعر | الإصدار المطور</title>
+    <title>لؤلؤة الشاعر | تحليل بلاغي وعروضي</title>
     <style>
-        body { font-family: sans-serif; background-color: #0b0c10; color: #66fcf1; text-align: center; padding: 20px; }
-        .container { max-width: 600px; margin: auto; background: #1f2833; padding: 20px; border-radius: 15px; border: 1px solid #45a29e; }
-        textarea { width: 90%; height: 100px; margin: 15px 0; padding: 10px; border-radius: 10px; border: none; font-size: 1.1em; }
-        button { background: #45a29e; color: #0b0c10; border: none; padding: 10px 25px; border-radius: 20px; font-weight: bold; cursor: pointer; }
-        #result { margin-top: 20px; text-align: right; line-height: 1.6; color: #c5c6c7; }
+        :root {
+            --primary: #66fcf1;
+            --bg: #0b0c10;
+            --container-bg: #1f2833;
+            --text: #ffffff;
+        }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: var(--container-bg);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid #45a29e;
+        }
+        h1 { color: var(--primary); margin-bottom: 25px; font-size: 28px; }
+        textarea {
+            width: 100%;
+            height: 150px;
+            background: #0b0c10;
+            border: 1px solid #45a29e;
+            border-radius: 12px;
+            color: white;
+            padding: 15px;
+            font-size: 18px;
+            box-sizing: border-box;
+            resize: none;
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: var(--primary);
+            color: #0b0c10;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover { transform: scale(1.05); background-color: #45a29e; }
+        #result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 12px;
+            background: rgba(102, 252, 241, 0.05);
+            min-height: 50px;
+            white-space: pre-wrap;
+            line-height: 1.8;
+            text-align: right;
+            border-right: 4px solid var(--primary);
+        }
     </style>
 </head>
 <body>
+
     <div class="container">
         <h1>لؤلؤة الشاعر</h1>
-        <textarea id="poemInput" placeholder="أدخل الأبيات هنا..."></textarea>
+        <textarea id="poemInput" placeholder="أدخل أبيات الشعر هنا ليتم تحليلها..."></textarea>
         <br>
-        <button onclick="analyze()">حلل القصيدة</button>
-        <div id="result"></div>
+        <button onclick="analyze()">تحليل القصيدة</button>
+        <div id="result">النتيجة ستظهر هنا...</div>
     </div>
 
     <script>
         async function analyze() {
-            const poem = document.getElementById('poemInput').value;
+            const poemText = document.getElementById('poemInput').value;
             const resDiv = document.getElementById('result');
-            if(!poem) return alert("أدخل نصاً أولاً");
-            resDiv.innerHTML = "جاري استخراج اللآلئ...";
+
+            if (!poemText.trim()) {
+                alert("الرجاء إدخال أبيات شعرية أولاً");
+                return;
+            }
+
+            resDiv.innerHTML = "جاري استخراج اللآلئ وتحليل الأبيات... انتظر قليلاً";
+            resDiv.style.color = "#66fcf1";
+
             try {
-                const response = await fetch('https://poet-pearl.vercel.app/api/analyze', {
+                const response = await fetch('/api/analyze', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ poem })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ poem: poemText })
                 });
+
                 const data = await response.json();
-                resDiv.innerHTML = data.analysis || "حدث خطأ في الخادم";
-            } catch (e) {
-                resDiv.innerHTML = "فشل الاتصال بالسيرفر";
+
+                if (data.analysis) {
+                    resDiv.innerHTML = data.analysis;
+                    resDiv.style.color = "#ffffff";
+                } else if (data.error) {
+                    resDiv.innerHTML = "خطأ من الخادم: " + data.error;
+                    resDiv.style.color = "#ff4c4c";
+                } else {
+                    resDiv.innerHTML = "حدث خطأ غير معروف في الرد";
+                }
+            } catch (error) {
+                resDiv.innerHTML = "فشل الاتصال بالسيرفر. تأكد من أنك قمت بعمل Redeploy في Vercel";
+                resDiv.style.color = "#ff4c4c";
             }
         }
     </script>
 </body>
-  </html>
-  
+</html>
